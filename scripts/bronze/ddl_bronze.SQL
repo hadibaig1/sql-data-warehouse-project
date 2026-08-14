@@ -7,139 +7,70 @@ Script Purpose:
 ===========================================
 */
 
--- bulk inserting our data --
-EXEC bronze.load_bronze
+-- HEre we are going to load our data into our Table --
 
-CREATE OR ALTER PROCEDURE bronze.load_bronze AS
-BEGIN
-DECLARE @start_time DATETIME, @end_time DATETIME, @full_start_time DATETIME, @full_end_time DATETIME
-	BEGIN TRY
-		PRINT '================================================';
-		PRINT 'Loading Bronze Layer'
-		PRINT '================================================';
+-- Building our TSQL logic to check whether or not the DB exists or not
+IF OBJECT_ID ('bronze.crm_cust_info', 'U') IS NOT NULL
+	DROP TABLE bronze.crm_cust_info;
+CREATE TABLE bronze.crm_cust_info (
+	cst_id INT,
+	cst_key NVARCHAR(50),
+	cst_firstname NVARCHAR(50),
+	cst_lastname NVARCHAR(50),
+	cst_material_status NVARCHAR(50),
+	cst_gndr NVARCHAR(50),
+	cst_create_date DATE
+);
 
-		PRINT '------------------------------------------------';
-		PRINT 'Loading CRM Tables'
-		PRINT '------------------------------------------------';
-
-
-		-- Setting the full time for the whole query --
-		SET @full_start_time = GETDATE()
-
-		SET @start_time = GETDATE()
-		PRINT '>> Truncating Table: bronze.crm_cust_info'
-		TRUNCATE TABLE bronze.crm_cust_info;
-
-		PRINT '>> Inserting Data Into: bronze.crm_cust_info'
-		BULK INSERT bronze.crm_cust_info
-		FROM "C:\Users\loung\Downloads\cust_info.csv"
-		WITH (
-			-- TELLING SQL TO SKIP THE FIRST ROW, SINCE THERE ARE ONLY HEADERS THERE
-			FIRSTROW = 2,
-			FIELDTERMINATOR = ',',
-			TABLOCK
-		);
-		SET @end_time = GETDATE()
-		PRINT '>> LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds'
+IF OBJECT_ID ('bronze.crm_prd_info', 'U') IS NOT NULL
+	DROP TABLE bronze.crm_prd_info;
+CREATE TABLE bronze.crm_prd_info (
+prd_id INT,
+prd_key VARCHAR(50),
+prd_nm VARCHAR(50),
+prd_cost INT,
+prd_line VARCHAR(50),
+prd_start_dt DATETIME,
+prd_end_dt DATETIME);
 
 
+IF OBJECT_ID ('bronze.cmr_sales_detailes', 'U') IS NOT NULL
+	DROP TABLE bronze.cmr_sales_detailes;
+CREATE TABLE bronze.cmr_sales_detailes (
+sls_ord_num VARCHAR(50),
+sls_prd_key VARCHAR(50),
+sls_cust_id INT,
+sls_order_dt INT,
+sls_ship_dt INT,
+sls_due_dt INT,
+sls_sales INT,
+sls_quantity INT,
+sls_price INT
 
-		SET @start_time = GETDATE()
-		PRINT '>> Truncating Table: bronze.crm_sales_detailes'
-		TRUNCATE TABLE bronze.crm_sales_detailes;
-
-		PRINT '>> Inserting Data Into: bronze.crm_sales_detailes'
-		BULK INSERT bronze.crm_sales_detailes
-		FROM "C:\Users\loung\Downloads\sales_details.csv"
-		WITH (
-			FIRSTROW = 2,
-			FIELDTERMINATOR = ',',
-			TABLOCK
-		);
-
-
-
-		SET @start_time = GETDATE()
-		PRINT '>> Truncating Table: bronze.crm_prd_info'
-		TRUNCATE TABLE bronze.crm_prd_info;
-
-		PRINT '>> Inserting Data Into: bronze.crm_prd_info'
-		BULK INSERT bronze.crm_prd_info
-		FROM "C:\Users\loung\Downloads\prd_info.csv"
-		WITH (
-			FIRSTROW = 2,
-			FIELDTERMINATOR = ',',
-			TABLOCK
-		);
-		SET @end_time = GETDATE()
-		PRINT '>> LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds'
+);
 
 
-		PRINT '------------------------------------------------';
-		PRINT 'Loading ERP Tables'
-		PRINT '------------------------------------------------';
+IF OBJECT_ID ('bronze.erp_cust_az12', 'U') IS NOT NULL
+	DROP TABLE bronze.erp_cust_az12;
+CREATE TABLE bronze.erp_cust_az12 (
+cid VARCHAR(50),
+bdate DATE,
+gen VARCHAR(50)
+);
+
+IF OBJECT_ID ('bronze.erp_loc_a101', 'U') IS NOT NULL
+	DROP TABLE bronze.erp_loc_a101;
+CREATE TABLE bronze.erp_loc_a101 (
+cid VARCHAR(50),
+cntry VARCHAR(50)
+);
 
 
-
-		SET @start_time = GETDATE()
-		PRINT '>> Truncating Table: bronze.erp_cust_az12'
-		TRUNCATE TABLE bronze.erp_cust_az12;
-
-		PRINT '>> Inserting Data Into: bronze.erp_cust_az12'
-		BULK INSERT bronze.erp_cust_az12
-		FROM "C:\Users\loung\Downloads\CUST_AZ12.csv"
-		WITH (
-			FIRSTROW = 2,
-			FIELDTERMINATOR = ',',
-			TABLOCK
-		);
-		SET @end_time = GETDATE()
-		PRINT '>> LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds'
-
-
-
-		SET @start_time = GETDATE()
-		PRINT '>> Truncating Table: bronze.erp_loc_a101'
-		TRUNCATE TABLE bronze.erp_loc_a101;
-
-		PRINT '>> Inserting Data Into: bronze.erp_loc_a101'
-		BULK INSERT bronze.erp_loc_a101
-		FROM "C:\Users\loung\Downloads\LOC_A101.csv"
-		WITH (
-			FIRSTROW = 2,
-			FIELDTERMINATOR = ',',
-			TABLOCK
-		);
-		SET @end_time = GETDATE()
-		PRINT '>> LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds'
-
-
-		SET @start_time = GETDATE()
-		PRINT '>> Truncating Table: bronze.erp_px_cat_g1v2'
-		TRUNCATE TABLE bronze.erp_px_cat_g1v2;
-
-		PRINT '>> Inserting Data Into: bronze.erp_px_cat_g1v2'
-		BULK INSERT bronze.erp_px_cat_g1v2
-		FROM "C:\Users\loung\Downloads\PX_CAT_G1V2.csv"
-		WITH (
-			FIRSTROW = 2,
-			FIELDTERMINATOR = ',',
-			TABLOCK
-		);
-
-		SET @end_time = GETDATE()
-		SET @full_end_time = GETDATE()
-		PRINT '>> LOAD DURATION: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds'
-	
-
-		-- Printing out the whole time it took to execute the query --
-		PRINT '>>Full Load duration: ' + CAST(DATEDIFF(second, @full_start_time, @full_end_time) AS NVARCHAR) + ' seconds'
-	END TRY
-	BEGIN CATCH
-		PRINT '==================================='
-		PRINT 'ERROR OCCURED DURING LOADING BRONZE LAYER'
-		PRINT 'Error Message' + ERROR_MESSAGE();
-		PRINT 'Error Message' + CAST(ERROR_NUMBER() AS NVARCHAR);
-		PRINT '==================================='
-	END CATCH
-END
+IF OBJECT_ID ('bronze.erp_px_cat_g1v2', 'U') IS NOT NULL
+	DROP TABLE bronze.erp_px_cat_g1v2;
+CREATE TABLE bronze.erp_px_cat_g1v2 (
+id VARCHAR(50),
+cat VARCHAR(50),
+subcat VARCHAR(50),
+maintenance VARCHAR(50)
+);
