@@ -1,0 +1,27 @@
+/*
+
+===========================================================
+CREATE DATABASE AND SCHEMAS
+===========================================================
+Script Purpose:
+  This script creates a new dtabase named 'DataWarehouse' in SqlServer. This code only works if the DataBase is not created already so tthat
+  you dont run this script and accidently delete all of the previous data. Additionally, the script sets up three schemas within the Database:
+  'bronze', 'silver', and 'gold'.
+
+
+
+  ========================
+  Code*/
+  USE master
+
+  -- Create the Databse 'Datawarehouse' --
+  CREATE DATABASE DataWarehouse';
+
+  USE DataWarehouse
+
+  -- Creating our Schemas --
+  CREATE SCHEMA 'bronze'
+  GO
+  CREATE SCHEMA 'silver'
+  GO
+  CREATE SCHEMA 'gold'
